@@ -90,7 +90,6 @@ roles:
       - launch_instances_aux
       - retrieve_instances
       - allow_pass_role_minimal
-      - launch_instances_aux
   - name: add-jump-cp-role
     policies:
       - read_bucket_cellpainting_gallery
