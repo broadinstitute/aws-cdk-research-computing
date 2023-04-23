@@ -3,11 +3,10 @@ theme:
   name: material
 nav:
   - Introduction: "01-introduction.md"
-  - Installation: "02-installation.md"
-  - Setup: "03-setup.md"
-  - Deployment: "04-deployment.md"
-  - User Management: "05-user_management.md"
-  - Credentials and Roles: "06-credentials_roles.md"
-  - Collaborator Access: "07-collaborator_access.md"
-  - EC2 Instance: "08-ec2_instance.md"
-  - Addendum: "09-addendum.md"
+  - Setup: "02-setup.md"
+  - Deployment: "03-deployment.md"
+  - User Management: "04-user_management.md"
+  - Credentials and Roles: "05-credentials_roles.md"
+  - Collaborator Access: "05-collaborator_access.md"
+  - EC2 Instance: "07-ec2_instance.md"
+  - Addendum: "99-addendum.md"
