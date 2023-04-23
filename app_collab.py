@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import aws_cdk as cdk
-from research_computing.bucket_stack import DevBucketStack
 from research_computing.iam_resources_stack import IAMResourcesStack
 from pathlib import Path
 
