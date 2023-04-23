@@ -1,30 +1,31 @@
 
 # CloudFormation Stacks for Research Computing
 
-Here, we use AWS CDK to create CloudFormation stacks for research computing.
+Stacks for setting up AWS resources for research computing.
 
-At present, it contains two stacks:
-
-- `DevBucketStack`: creates a bucket for development purposes
-- `IAMResources`: creates IAM resources for a research project
+- `DevBucketStack`: bucket
+- `IAMResources`: users, groups, roles, and policies
+- `NetworkStack`: VPC and subnets
+- `LaunchTemplateStack`: launch template for EC2 instances
 
 `DevBucketStack` needs only a single parameter, `dev_bucket_name`, which is the name of the bucket.
 The parameter can be specified either in the `cdk.json` file or on the command line using the `--context` option (see below)
 
-`IAMResources` also needs a single parameter, `config_folder`, which is the path to the folder containing the configuration files.
-There are four parameter files in the `configs` folder:
+All other stacks require the parameter `config_folder`, which is the path to the folder containing the configuration files:
 
-- `user_group.yaml`: configure users and groups
-- `role_policy.yaml`: configure policies and roles
-- `action_mapping.yaml`: maps short action names to full, IAM action names
-- `assume_role.yaml`: assigns roles to users or other roles
+- `IAMResources` uses `user_group.yaml`, `role_policy.yaml`, `action_mapping.yaml`, `assume_role.yaml`
+- `NetworkStack` uses `network.yaml`
+- `LaunchTemplateStack` uses `launch_template.yaml`
 
 The repo contains two sets of configuration files:
 
-- `configs/local`: configuration files for the research team ("local"). This shows examples of setting up different types of access to resource, including collaborator access to a prefix in a bucket.
-- `configs/collab`: configuration files for a collaborator. This shows how a collaborator should setup their infrastructure to access the S3 resources shared by the research team.
+- `configs/local`: configuration files for the research team ("local").
+- `configs/collab`: configuration files for a collaborator to enable access to the S3 resources shared by the research team.
 
 In the example, the collaborator `IAMResources` stack needs to be set up first because the local `IAMResources` stack refers to a role created in the collaborator stack.
+More on this below.
+
+CRITICAL NOTE: The `DevBucketStack` does not have termination protection enabled! This is because the bucket is used for testing and development and it is not intended to be used in production. If you want to use this stack in production, you should enable termination protection.
 
 ## Setup
 
@@ -55,7 +56,8 @@ pip install -r requirements.txt
 
 ## Deploy
 
-First create the collaborator stack
+First create the collaborator stack.
+For testing purposes, this can be run in the same account as the local stack.
 
 ```sh
 cdk deploy IAMResources-collab --context config_folder="configs/collab" --app "python3 app_collab.py"
@@ -66,6 +68,8 @@ Then create the local stack
 ```sh
 cdk deploy DevBucket
 cdk deploy IAMResources --context config_folder="configs/local"
+cdk deploy Network --context config_folder="configs/local"
+cdk deploy LaunchTemplate --context config_folder="configs/local"
 ```
 
 ## Creating access keys and passwords for users
@@ -74,7 +78,7 @@ The [AWS best practices](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-p
 Instead, you should use an identity provider (IdP) to federate users to AWS.
 However, if you need to create access keys for a user, you can do so using the AWS CLI.
 
-To create an access key for a user, run the following command; admin permissions (or at least `iam:CreateAccessKey`) needed:
+To create an access key for a user:
 
 ```sh
 USER=user1
@@ -83,7 +87,7 @@ CREDENTIALS=/tmp/credentials_${USER}.json
 aws iam create-access-key --user-name ${USER} > ${CREDENTIALS} # this is insecure, but it's just for testing
 ```
 
-To delete all access keys for a user, run the following command; admin permissions (or at least `iam:ListAccessKeys` and `iam:DeleteAccessKey` ) needed:
+To delete all access keys for a user:
 
 ```sh
 USER=user1
@@ -91,7 +95,7 @@ USER=user1
 aws iam list-access-keys --user-name ${USER} | jq -r '.AccessKeyMetadata[].AccessKeyId' | xargs -I {} aws iam delete-access-key --user-name ${USER} --access-key-id {}
 ```
 
-To create a password for a user, run the following command:
+To create a password for a user:
 
 ```sh
 USER=user1
@@ -99,7 +103,7 @@ USER=user1
 aws iam create-login-profile --user-name ${USER} --password password1
 ```
 
-To deactivate a user's password, run the following command:
+To deactivate a user's password:
 
 ```sh
 USER=user1
@@ -107,7 +111,7 @@ USER=user1
 aws iam update-login-profile --user-name ${USER} --password-reset-required
 ```
 
-To list MFA devices for a user, run the following command:
+To list MFA devices for a user:
 
 ```sh
 USER=user1
@@ -117,7 +121,7 @@ aws iam list-mfa-devices --user-name ${USER}
 
 ## Using credentials and assuming roles
 
-To export the access key and secret access key as environment variables, run the following command:
+To export the access key and secret access key as environment variables:
 
 ```sh
 USER=user1
@@ -125,17 +129,18 @@ CREDENTIALS=/tmp/credentials_${USER}.json
 export AWS_ACCESS_KEY_ID=$(cat ${CREDENTIALS} | jq -j '.AccessKey.AccessKeyId')
 export AWS_SECRET_ACCESS_KEY=$(cat ${CREDENTIALS} | jq -j '.AccessKey.SecretAccessKey')
 unset AWS_SESSION_TOKEN # do this just in case you had previously assumed a role
+
 # verify that the credentials work
 aws sts get-caller-identity
 ```
 
-Try out a command that the user does not have access to without assuming a role:
+Try out a command to which the user does not have access without assuming a role:
 
 ```sh
 aws s3 ls s3://ipdata-dev/folder2/
 ```
 
-To assume a role, e.g., `typical_data_scientist` run the following command:
+To assume a role, e.g., `typical_data_scientist` that will give access to the S3 bucket (and other resources):
 
 ```sh
 ROLE=typical_data_scientist
@@ -153,7 +158,7 @@ export AWS_ACCESS_KEY_ID=$(cat ${ROLE_CREDENTIALS} | jq -j '.Credentials.AccessK
 export AWS_SECRET_ACCESS_KEY=$(cat ${ROLE_CREDENTIALS} | jq -j '.Credentials.SecretAccessKey')
 export AWS_SESSION_TOKEN=$(cat ${ROLE_CREDENTIALS} | jq -j '.Credentials.SessionToken')
 
-# time untilwhich the credentials are valid
+# time until which the credentials are valid
 cat ${ROLE_CREDENTIALS} | jq -j '.Credentials.Expiration'
 
 # verify that the credentials work
@@ -223,7 +228,7 @@ export AWS_ACCESS_KEY_ID=$(cat ${ROLE_CREDENTIALS} | jq -j '.Credentials.AccessK
 export AWS_SECRET_ACCESS_KEY=$(cat ${ROLE_CREDENTIALS} | jq -j '.Credentials.SecretAccessKey')
 export AWS_SESSION_TOKEN=$(cat ${ROLE_CREDENTIALS} | jq -j '.Credentials.SessionToken')
 
-# duration for which the credentials are valid
+# time until which the credentials are valid
 cat ${ROLE_CREDENTIALS} | jq -j '.Credentials.Expiration'
 
 # verify that the credentials work
@@ -245,9 +250,12 @@ date > /tmp/test.txt; aws s3 cp /tmp/test.txt s3://ipdata-dev/collaborator-folde
 
 ## Launch EC2 instance
 
+First, assume the `typical_data_scientist` role.
+
 Generate a new key pair using the AWS CLI:
 
 ```sh
+# permissions needed to run this: `ec2:CreateKeyPair`
 aws ec2 create-key-pair --key-name MyKeyPair --query 'KeyMaterial' --output text > ~/Desktop/MyKeyPair.pem
 ```
 
@@ -287,6 +295,7 @@ Get the instance id
 ```sh
 INSTANCE_ID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=${INSTANCE_NAME} --filters Name=instance-state-name,Values=running | jq -r '.Reservations[0].Instances[0].InstanceId')
 echo ${INSTANCE_ID}
+# this will show up as null if the instance is not running (or if it doesn't exist)
 ```
 
 Connect to the instance
