@@ -1,0 +1,4 @@
+assignments:
+  - entity: collaborator_group1
+    type: group
+    role: requestor_bucket_ipdata_dev

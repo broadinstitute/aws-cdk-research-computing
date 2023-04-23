@@ -1,0 +1,19 @@
+groups:
+  - name: group1
+    users:
+      - user1
+      - user2
+  - name: group2
+    users:
+      - user3
+      - user4
+
+users:
+  - name: user1
+    email: user1@example.com
+  - name: user2
+    email: user2@example.com
+  - name: user3
+    email: user3@example.com
+  - name: user4
+    email: user4@example.com

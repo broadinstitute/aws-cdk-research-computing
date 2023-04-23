@@ -1,0 +1,11 @@
+groups:
+  - name: collaborator_group1
+    users:
+      - collaborator_user1
+      - collaborator_user2
+
+users:
+  - name: collaborator_user1
+    email: collaborator_user1@example.com
+  - name: collaborator_user2
+    email: collaborator_user2@example.com

@@ -1,0 +1,33 @@
+read_only:
+  - action: s3:Get*
+  - action: s3:List*
+read_write:
+  - action: s3:Get*
+  - action: s3:List*
+  - action: s3:PutObject
+  - action: s3:DeleteObject
+retrieve_instance:
+  - action: ec2:Describe*
+  - action: ec2:Search*
+  - action: ec2:Get*
+  - action: ec2:Create*
+  - action: ec2:Associate*
+  - action: ec2:Terminate*
+  - action: ssm:GetParameters
+  - action: ssm:StartSession
+launch_instance:
+  - action: ec2:RunInstances
+launch_instance_small:
+  - action: ec2:RunInstances
+    condition:
+      StringEquals:
+        ec2:InstanceType:
+          - t2.micro
+          - t2.small
+          - t2.medium
+pass_role:
+  - action: iam:PassRole
+    condition:
+      StringEquals:
+        iam:PassedToService:
+          - ec2.amazonaws.com

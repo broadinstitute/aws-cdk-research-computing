@@ -1,0 +1,19 @@
+assignments:
+  - entity: group1
+    type: group
+    role: typical_data_scientist
+  - entity: group1
+    type: group
+    role: pass_role_minimal
+  - entity: group2
+    type: group
+    role: intense_data_scientist
+  - entity: group2
+    type: group
+    role: add-jump-cp-role
+  # if the ARN does not exist, this will fail
+  # the account 385009899373 should be of the requestor
+  # but in this example, the requestor is the same account as the grantor
+  - entity: arn:aws:iam::385009899373:role/requestor_bucket_ipdata_dev
+    type: arn
+    role: grantor_bucket_ipdata_dev

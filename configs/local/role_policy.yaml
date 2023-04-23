@@ -1,0 +1,102 @@
+resources:
+  - name: write_prefixes_bucket_dev_example
+    items: &write_prefixes_bucket_dev_example
+      - arn:aws:s3:::ipdata-dev/folder2/*
+  - name: read_prefixes_bucket_dev_example
+    items: &read_prefixes_bucket_dev_example
+      - arn:aws:s3:::ipdata-dev/folder1/*
+  - name: read_collaborator_prefixes_bucket_dev_example
+    items: &read_collaborator_prefixes_bucket_dev_example
+      - arn:aws:s3:::ipdata-dev/collaborator-folder1/*
+
+policies:
+  - name: read_bucket_dev
+    resources:
+      - arn:aws:s3:::ipdata-dev/*
+    actions:
+      - read_only
+  - name: write_bucket_dev
+    resources:
+      - arn:aws:s3:::ipdata-dev/*
+    actions:
+      - read_write
+  - name: read_bucket_dev_prefix
+    resources: *read_prefixes_bucket_dev_example
+    actions:
+      - read_only
+  - name: local_read_bucket_dev_collaborator_prefix
+    resources: *read_collaborator_prefixes_bucket_dev_example
+    actions:
+      - read_only
+  - name: read_bucket_cellpainting_gallery
+    resources:
+      - arn:aws:s3:::cellpainting-gallery/*
+    actions:
+      - read_only
+  - name: write_bucket_dev_prefix
+    resources: *write_prefixes_bucket_dev_example
+    actions:
+      - read_write
+  - name: launch_instances
+    resources:
+      - arn:aws:ec2:*:*:instance/*
+    actions:
+      - launch_instance
+  - name: launch_instances_small
+    resources:
+      - arn:aws:ec2:*:*:instance/*
+    actions:
+      - launch_instance_small
+  - name: launch_instances_aux
+    resources:
+      - arn:aws:ec2:*:*:image/ami-*
+      - arn:aws:ec2:*:*:key-pair/*
+      - arn:aws:ec2:*:*:network-interface/*
+      - arn:aws:ec2:*:*:security-group/*
+      - arn:aws:ec2:*:*:subnet/*
+      - arn:aws:ec2:*:*:launch-template/*
+      - arn:aws:ec2:*:*:volume/*
+    actions:
+      - launch_instance
+  - name: retrieve_instances
+    resources:
+      - "*"
+    actions:
+      - retrieve_instance
+  - name: allow_pass_role_minimal
+    resources:
+      - role:minimal
+    actions:
+      - pass_role
+
+roles:
+  - name: minimal
+    policies:
+      - read_bucket_dev
+  - name: pass_role_minimal
+    policies:
+      - allow_pass_role_minimal
+  - name: typical_data_scientist
+    policies:
+      - write_bucket_dev_prefix
+      - launch_instances_small
+      - launch_instances_aux
+      - retrieve_instances
+      - allow_pass_role_minimal
+  - name: intense_data_scientist
+    policies:
+      - write_bucket_dev_prefix
+      - launch_instances
+      - launch_instances_aux
+      - retrieve_instances
+      - allow_pass_role_minimal
+      - launch_instances_aux
+  - name: add-jump-cp-role
+    policies:
+      - read_bucket_cellpainting_gallery
+  - name: guest
+    policies:
+      - read_bucket_dev_prefix
+  - name: grantor_bucket_ipdata_dev
+    policies:
+      - local_read_bucket_dev_collaborator_prefix

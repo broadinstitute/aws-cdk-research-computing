@@ -1,0 +1,18 @@
+read_only:
+  - action: s3:Get*
+  - action: s3:List*
+read_write:
+  - action: s3:Get*
+  - action: s3:List*
+  - action: s3:PutObject
+  - action: s3:DeleteObject
+launch:
+  - action: ec2:RunInstances
+launch_small:
+  - action: ec2:RunInstances
+    condition:
+      StringEquals:
+        ec2:InstanceType:
+          - t2.micro
+          - t2.small
+          - t2.medium

@@ -1,0 +1,5 @@
+aws-cdk-lib==2.68.0
+constructs>=10.0.0,<11.0.0
+ipykernel>=6.22.0
+pyyaml>=6.0.0
+botocore>=1.26.0

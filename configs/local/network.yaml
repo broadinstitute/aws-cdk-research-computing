@@ -1,0 +1,17 @@
+allowed_cidr_blocks_broad_vpn_home: &allowed_cidr_blocks_broad_vpn_home
+  - 69.173.64.0/18
+  - 76.152.190.106/32
+
+vpcs:
+  - name: vpc-dev
+    cidr: 10.0.0.0/16
+    max_azs: 2
+    nat_gateways: 1
+security_groups:
+  - name: ssh_from_vpn
+    description: SSH from VPN
+    vpc: vpc-dev
+    ingress:
+      - port: 22
+        description: SSH from VPN
+        allowed_cidr_blocks: *allowed_cidr_blocks_broad_vpn_home

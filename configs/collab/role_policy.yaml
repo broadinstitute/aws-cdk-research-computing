@@ -1,0 +1,15 @@
+resources:
+  - name: read_collaborator_prefixes_bucket_dev_example
+    items: &read_collaborator_prefixes_bucket_dev_example
+      - arn:aws:s3:::ipdata-dev/collaborator-folder1/*
+
+policies:
+  - name: read_bucket_dev_collaborator_prefix
+    resources: *read_collaborator_prefixes_bucket_dev_example
+    actions:
+      - read_only
+
+roles:
+  - name: requestor_bucket_ipdata_dev
+    policies:
+      - read_bucket_dev_collaborator_prefix

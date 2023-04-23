@@ -1,0 +1,7 @@
+launch_templates:
+  - name: lt-micro
+    image_id_ssm: resolve:ssm:/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+    instance_type: t2.micro
+  - name: lt-small
+    image_id_ssm: resolve:ssm:/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+    instance_type: t2.small
