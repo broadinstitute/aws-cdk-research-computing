@@ -73,9 +73,6 @@ roles:
   - name: minimal
     policies:
       - read_bucket_dev
-  - name: pass_role_minimal
-    policies:
-      - allow_pass_role_minimal
   - name: typical_data_scientist
     policies:
       - write_bucket_dev_prefix

@@ -2,9 +2,6 @@ assignments:
   - entity: group1
     type: group
     role: typical_data_scientist
-  - entity: group1
-    type: group
-    role: pass_role_minimal
   - entity: group2
     type: group
     role: intense_data_scientist
