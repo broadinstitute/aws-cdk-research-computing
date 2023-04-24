@@ -7,6 +7,6 @@ nav:
   - Deployment: "03-deployment.md"
   - User Management: "04-user_management.md"
   - Credentials and Roles: "05-credentials_roles.md"
-  - Collaborator Access: "05-collaborator_access.md"
+  - Collaborator Access: "06-collaborator_access.md"
   - EC2 Instance: "07-ec2_instance.md"
   - Addendum: "99-addendum.md"
