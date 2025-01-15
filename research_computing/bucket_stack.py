@@ -2,6 +2,7 @@ from constructs import Construct
 from aws_cdk import Duration
 from aws_cdk import Stack
 from aws_cdk import aws_s3 as s3
+from aws_cdk import RemovalPolicy
 
 
 class DevBucketStack(Stack):
@@ -32,22 +33,28 @@ class DevBucketStack(Stack):
             ),
         ]
 
-        dev_bucket = s3.Bucket(
-            self,
-            "DevOpenDataBucket",
-            encryption=s3.BucketEncryption.S3_MANAGED,
-            object_ownership=s3.ObjectOwnership.BUCKET_OWNER_PREFERRED,
-            enforce_ssl=True,
-            bucket_name=dev_bucket_name,
-            lifecycle_rules=lifecycle_rules,
-            versioned=True,
-            cors=[
-                s3.CorsRule(
-                    allowed_headers=["*"],
-                    allowed_methods=[s3.HttpMethods.HEAD, s3.HttpMethods.GET],
-                    allowed_origins=["*"],
-                    exposed_headers=["ETag", "x-amz-meta-custom-header"],
-                    max_age=3000,
-                )
-            ],
+        dev_bucket = (  # noqa: F841
+            s3.Bucket.from_bucket_name(self, "DevOpenDataBucket", dev_bucket_name)
+            if s3.Bucket.from_bucket_name(self, "BucketLookup", dev_bucket_name)
+            else s3.Bucket(
+                self,
+                "DevOpenDataBucket",
+                encryption=s3.BucketEncryption.S3_MANAGED,
+                object_ownership=s3.ObjectOwnership.BUCKET_OWNER_PREFERRED,
+                enforce_ssl=True,
+                bucket_name=dev_bucket_name,
+                lifecycle_rules=lifecycle_rules,
+                versioned=True,
+                cors=[
+                    s3.CorsRule(
+                        allowed_headers=["*"],
+                        allowed_methods=[s3.HttpMethods.HEAD, s3.HttpMethods.GET],
+                        allowed_origins=["*"],
+                        exposed_headers=["ETag", "x-amz-meta-custom-header"],
+                        max_age=3000,
+                    )
+                ],
+                removal_policy=RemovalPolicy.RETAIN,  # Never delete the bucket when the stack is destroyed
+                auto_delete_objects=False,  # Never automatically delete objects
+            )
         )
